@@ -11,7 +11,7 @@
          <children>
             <LineChart fx:id="tempChart" layoutX="48.0" title="Temperature">
               <xAxis>
-                <NumberAxis fx:id="timeAxis" autoRanging="false" label="Time (Seconds ago)" lowerBound="-300.0" minorTickCount="1" minorTickLength="1.0" side="BOTTOM" tickLabelGap="1.0" tickUnit="100" upperBound="0.0">
+                <NumberAxis fx:id="timeAxis" autoRanging="false" label="Time (Seconds ago)" lowerBound="-300.0" minorTickCount="10" minorTickLength="1.0" side="BOTTOM" tickLabelGap="1.0" tickUnit="100" upperBound="0.0">
                      <tickLabelFont>
                         <Font size="12.0" />
                      </tickLabelFont></NumberAxis>
