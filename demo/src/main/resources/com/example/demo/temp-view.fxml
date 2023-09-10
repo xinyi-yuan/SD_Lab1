@@ -5,24 +5,24 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
-  <content>
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.DisplayController">
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="400.0" prefWidth="596.0">
-         <children>
-            <LineChart fx:id="tempChart" layoutX="48.0" title="Temperature">
-              <xAxis>
+        <LineChart fx:id="tempChart" layoutX="48.0" title="Temperature">
+            <xAxis>
                 <NumberAxis fx:id="timeAxis" autoRanging="false" label="Time (Seconds ago)" lowerBound="-300.0" minorTickCount="10" minorTickLength="1.0" side="BOTTOM" tickLabelGap="1.0" tickUnit="100" upperBound="0.0">
-                     <tickLabelFont>
+                    <tickLabelFont>
                         <Font size="12.0" />
-                     </tickLabelFont></NumberAxis>
-              </xAxis>
-              <yAxis>
-                <NumberAxis fx:id="tempAxis" autoRanging="false" label="Temp (Celcius)" lowerBound="-30.0" minorTickLength="1.0" side="RIGHT" tickLabelGap="1.0" tickLabelRotation="-20.6" tickUnit="10.0" upperBound="60.0">
-                     <tickLabelFont>
+                    </tickLabelFont>
+                </NumberAxis>
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="tempAxis" autoRanging="false" label="Temp (Celsius)" lowerBound="-30.0" minorTickLength="1.0" side="RIGHT" tickLabelGap="1.0" tickLabelRotation="-20.6" tickUnit="10.0" upperBound="60.0">
+                    <tickLabelFont>
                         <Font size="12.0" />
-                     </tickLabelFont></NumberAxis>
-              </yAxis>
-            </LineChart>
-         </children></AnchorPane>
-  </content>
+                    </tickLabelFont>
+                </NumberAxis>
+            </yAxis>
+        </LineChart>
+      <Button fx:id="visualButton" layoutX="22.0" layoutY="14.0" mnemonicParsing="false" text="Visualize" />
+    </AnchorPane>
 </ScrollPane>
