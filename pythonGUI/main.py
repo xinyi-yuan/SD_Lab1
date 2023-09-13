@@ -36,6 +36,5 @@ def plot():
     plt.show()
 
 
-def main():
-    read_file()
-    plot()
+read_file()
+plot()
