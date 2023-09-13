@@ -1,20 +1,23 @@
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
 
-### read file
+time_points = list()  # stores time data
+temp_points = list()  # stores temperature data
+
+
+# read file
 def read_file():
     with open('TempPlots.csv') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            print(row)
+        csv_reader = csv.reader(csvfile, delimiter=',')
+        for row in csv_reader:
+            time_points.append(float(row[0]))
+            temp_points.append(float(row[1]))
 
 
 # This function draw the graph
 def plot():
-    read_file()
-    time_points = np.array([-300, -200, -100, -50, 0, 10])
-    temp_points = np.array([24, 23, 21, 20.5, 25, 20])
+    # time_points = [-300, -200, -100, -50, 0, 10]
+    # temp_points = [24, 23, 21, 20.5, 25, 20]
 
     f = plt.figure()
     ax = f.add_subplot(111)
@@ -33,4 +36,6 @@ def plot():
     plt.show()
 
 
-plot()
+def main():
+    read_file()
+    plot()
