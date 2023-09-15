@@ -19,22 +19,30 @@ def plot():
     # time_points = [-300, -200, -100, -50, 0, 10]
     # temp_points = [24, 23, 21, 20.5, 25, 20]
 
-    f = plt.figure()
-    ax = f.add_subplot(111)
-    ax.yaxis.tick_right()
+    figure, (cel_ax, fah_ax) = plt.subplots(1, 2)
 
-    # Set bounds
-    plt.xlim([-310, 10])
-    plt.ylim([-50, 80])
+    # Celsius figure
+    cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
+    cel_ax.set(xlabel="Time (seconds ago)",
+               ylabel="Temperature (Celsius)")  # ADD xlim=(-310, 10), ylim=(-50, 100) if need limit
+    cel_ax.set_title("Temperature Data in Celsius")
+    cel_ax.yaxis.tick_right()
 
-    # Plot
-    plt.plot(time_points, temp_points, linewidth=2, marker='.')
-    plt.title("Temperature Data")
-    plt.xlabel("Time (seconds ago)")
-    plt.ylabel("Temperature (Celsius)")
+    # Fahrenheit figure
+    temp_fahr_points = [(i * 9 / 5 + 32) for i in temp_points]
+    fah_ax.plot(time_points, temp_fahr_points, linewidth=2, marker='.')
+    fah_ax.set(xlabel="Time (seconds ago)",
+               ylabel="Temperature (Fahrenheit)")  # ADD xlim=(-310, 10), ylim=(-100, 200) if need limit
+    fah_ax.set_title("Temperature Data in Fahrenheit")
+    fah_ax.yaxis.tick_right()
 
     plt.show()
 
 
-read_file()
-plot()
+def main():
+    read_file()
+    plot()
+
+
+if __name__ == "__main__":
+    main()
