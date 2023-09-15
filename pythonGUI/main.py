@@ -2,8 +2,10 @@ import csv
 import matplotlib.pyplot as plt
 import vonage
 
-time_points = list()  # stores time data
-temp_points = list()  # stores temperature data
+time_points = list()    # stores time data
+temp_points = list()    # stores temperature data
+sensor_status = False   # flag for sensor status, false if not connected
+switch_status = False   # flag for switch status, false if the switch off
 
 
 # read file
@@ -37,9 +39,26 @@ def plot():
     fah_ax.set_title("Temperature Data in Fahrenheit")
     fah_ax.yaxis.tick_right()
 
+    # Display "No Data Available" if the switch is off
+    if not switch_status:
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        cel_ax.text(0.05, 0.87, "No Data Available", transform=cel_ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+        fah_ax.text(0.05, 0.87, "No Data Available", transform=fah_ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+
+    # Display "Unplugged Sensor" if the sensor is not connected
+    if not sensor_status:
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        cel_ax.text(0.05, 0.95, "Unplugged Sensor", transform=cel_ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+        fah_ax.text(0.05, 0.95, "Unplugged Sensor", transform=fah_ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+
     plt.show()
 
 
+# Send text message to a phone number
 def send_sms():
     client = vonage.Client(key="b97abc26", secret="ognhX5rUby9tMLxy")
     sms = vonage.Sms(client)
