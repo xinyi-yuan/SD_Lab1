@@ -1,5 +1,6 @@
 import csv
 import matplotlib.pyplot as plt
+import vonage
 
 time_points = list()  # stores time data
 temp_points = list()  # stores temperature data
@@ -37,6 +38,24 @@ def plot():
     fah_ax.yaxis.tick_right()
 
     plt.show()
+
+
+def send_sms():
+    client = vonage.Client(key="b97abc26", secret="ognhX5rUby9tMLxy")
+    sms = vonage.Sms(client)
+
+    response_data = sms.send_message(
+        {
+            "from": "15713965612",
+            "to": "13194129046",
+            "text": "Hello World!",
+        }
+    )
+
+    if response_data["messages"][0]["status"] == "0":
+        print("Message sent successfully.")
+    else:
+        print(f"Message failed with error: {response_data['messages'][0]['error-text']}")
 
 
 def main():
