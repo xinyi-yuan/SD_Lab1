@@ -1,7 +1,7 @@
 import csv
 import matplotlib.pyplot as plt
 import vonage
-import time
+
 
 figure, (cel_ax, fah_ax) = plt.subplots(1, 2)   # Figures initialization
 time_points = list()    # stores time data
@@ -30,6 +30,8 @@ def plot_data():
                ylabel="Temperature (Celsius)")  # ADD xlim=(-310, 10), ylim=(-50, 100) if need limit
     cel_ax.set_title("Temperature Data in Celsius")
     cel_ax.yaxis.tick_right()
+    for i,j in zip(time_points, temp_points):
+        cel_ax.annotate(str(j), xy=(i, j))
 
     # Fahrenheit figure
     temp_fahr_points = [(i * 9 / 5 + 32) for i in temp_points]
@@ -38,8 +40,8 @@ def plot_data():
                ylabel="Temperature (Fahrenheit)")  # ADD xlim=(-310, 10), ylim=(-100, 200) if need limit
     fah_ax.set_title("Temperature Data in Fahrenheit")
     fah_ax.yaxis.tick_right()
-
-    #plt.show()
+    for i,j in zip(time_points, temp_fahr_points):
+        fah_ax.annotate(str(j), xy=(i, j))
 
 
 def check_switch():
@@ -89,6 +91,7 @@ def main():
     global sensor_status
     global switch_status
     read_file()
+    plt.ion()
     plot_data()
     check_switch()
     check_sensor()
