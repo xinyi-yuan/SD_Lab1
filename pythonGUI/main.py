@@ -1,7 +1,9 @@
 import csv
 import matplotlib.pyplot as plt
 import vonage
+import time
 
+figure, (cel_ax, fah_ax) = plt.subplots(1, 2)   # Figures initialization
 time_points = list()    # stores time data
 temp_points = list()    # stores temperature data
 sensor_status = False   # flag for sensor status, false if not connected
@@ -18,11 +20,9 @@ def read_file():
 
 
 # This function draw the graph
-def plot():
+def plot_data():
     # time_points = [-300, -200, -100, -50, 0, 10]
     # temp_points = [24, 23, 21, 20.5, 25, 20]
-
-    figure, (cel_ax, fah_ax) = plt.subplots(1, 2)
 
     # Celsius figure
     cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
@@ -39,6 +39,10 @@ def plot():
     fah_ax.set_title("Temperature Data in Fahrenheit")
     fah_ax.yaxis.tick_right()
 
+    #plt.show()
+
+
+def check_switch():
     # Display "No Data Available" if the switch is off
     if not switch_status:
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
@@ -47,6 +51,8 @@ def plot():
         fah_ax.text(0.05, 0.87, "No Data Available", transform=fah_ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props)
 
+
+def check_sensor():
     # Display "Unplugged Sensor" if the sensor is not connected
     if not sensor_status:
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
@@ -55,6 +61,8 @@ def plot():
         fah_ax.text(0.05, 0.95, "Unplugged Sensor", transform=fah_ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props)
 
+
+def show():
     plt.show()
 
 
@@ -78,8 +86,13 @@ def send_sms():
 
 
 def main():
+    global sensor_status
+    global switch_status
     read_file()
-    plot()
+    plot_data()
+    check_switch()
+    check_sensor()
+    show()
 
 
 if __name__ == "__main__":
