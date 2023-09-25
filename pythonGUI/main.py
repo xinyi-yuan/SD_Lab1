@@ -1,13 +1,14 @@
 import csv
 import matplotlib.pyplot as plt
 import vonage
+import matplotlib as mpl
+mpl.use('TkAgg')
 
-
-figure, (cel_ax, fah_ax) = plt.subplots(1, 2)   # Figures initialization
-time_points = list()    # stores time data
-temp_points = list()    # stores temperature data
-sensor_status = False   # flag for sensor status, false if not connected
-switch_status = False   # flag for switch status, false if the switch off
+figure, (cel_ax, fah_ax) = plt.subplots(1, 2)  # Figures initialization
+time_points = list()  # stores time data
+temp_points = list()  # stores temperature data
+sensor_status = False  # flag for sensor status, false if not connected
+switch_status = False  # flag for switch status, false if the switch off
 
 
 # read file
@@ -21,27 +22,48 @@ def read_file():
 
 # This function draw the graph
 def plot_data():
-    # time_points = [-300, -200, -100, -50, 0, 10]
-    # temp_points = [24, 23, 21, 20.5, 25, 20]
-
     # Celsius figure
-    cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
+    #cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
     cel_ax.set(xlabel="Time (seconds ago)",
                ylabel="Temperature (Celsius)")  # ADD xlim=(-310, 10), ylim=(-50, 100) if need limit
     cel_ax.set_title("Temperature Data in Celsius")
     cel_ax.yaxis.tick_right()
-    for i,j in zip(time_points, temp_points):
-        cel_ax.annotate(str(j), xy=(i, j))
 
     # Fahrenheit figure
-    temp_fahr_points = [(i * 9 / 5 + 32) for i in temp_points]
-    fah_ax.plot(time_points, temp_fahr_points, linewidth=2, marker='.')
     fah_ax.set(xlabel="Time (seconds ago)",
                ylabel="Temperature (Fahrenheit)")  # ADD xlim=(-310, 10), ylim=(-100, 200) if need limit
     fah_ax.set_title("Temperature Data in Fahrenheit")
     fah_ax.yaxis.tick_right()
-    for i,j in zip(time_points, temp_fahr_points):
+
+    for time, temp, time_label, temp_label in zip(time_points, temp_points, time_points, temp_points):
+        temp_fahr_points = temp * 9 / 5 + 32
+        # plot data
+        cel_ax.plot(time, temp, color='red', linewidth=2, marker='.')
+        fah_ax.plot(time, temp_fahr_points, color='blue', linewidth=2, marker='.')
+        # add label
+        cel_ax.annotate(str(temp_label), xy=(time_label, temp_label))
+        fah_ax.annotate(str(temp_fahr_points), xy=(time_label, temp_fahr_points))
+        plt.pause(0.01)
+
+
+    # Fahrenheit figure
+    '''
+    temp_fahr_points = [(i * 9 / 5 + 32) for i in temp_points]
+    fah_ax.plot(time_points, temp_fahr_points, linewidth=2, marker='.')
+    plt.pause(0.01)
+    fah_ax.set(xlabel="Time (seconds ago)",
+               ylabel="Temperature (Fahrenheit)")  # ADD xlim=(-310, 10), ylim=(-100, 200) if need limit
+    fah_ax.set_title("Temperature Data in Fahrenheit")
+    fah_ax.yaxis.tick_right()
+    # Add the label for temperature data
+    for i, j in zip(time_points, temp_fahr_points):
         fah_ax.annotate(str(j), xy=(i, j))
+    '''
+
+def add_points():
+    plt.pause(0.01)
+    cel_ax.plot([20, 50, 100], [24, 25, 21], linewidth=2, marker='.')
+    fah_ax.plot([20, 50, 100], [77, 88, 99], linewidth=2, marker='.')
 
 
 def check_switch():
@@ -69,18 +91,25 @@ def show():
 
 
 # Send text message to a phone number
-def send_sms():
+def send_sms(msg):
     client = vonage.Client(key="b97abc26", secret="ognhX5rUby9tMLxy")
     sms = vonage.Sms(client)
-
-    response_data = sms.send_message(
-        {
-            "from": "15713965612",
-            "to": "13194129046",
-            "text": "Hello World!",
-        }
-    )
-
+    if msg == 0:
+        response_data = sms.send_message(
+            {
+                "from": "15713965612",
+                "to": "13194129046",
+                "text": "Temperature too low!",
+            }
+        )
+    else:
+        response_data = sms.send_message(
+            {
+                "from": "15713965612",
+                "to": "13194129046",
+                "text": "Temperature too high!",
+            }
+        )
     if response_data["messages"][0]["status"] == "0":
         print("Message sent successfully.")
     else:
@@ -91,10 +120,10 @@ def main():
     global sensor_status
     global switch_status
     read_file()
-    plt.ion()
     plot_data()
     check_switch()
     check_sensor()
+    add_points()
     show()
 
 
