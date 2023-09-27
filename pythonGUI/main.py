@@ -2,6 +2,8 @@ import csv
 import matplotlib.pyplot as plt
 import vonage
 import matplotlib as mpl
+import socket
+
 mpl.use('TkAgg')
 
 figure, (cel_ax, fah_ax) = plt.subplots(1, 2)  # Figures initialization
@@ -23,7 +25,7 @@ def read_file():
 # This function draw the graph
 def plot_data():
     # Celsius figure
-    #cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
+    # cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
     cel_ax.set(xlabel="Time (seconds ago)",
                ylabel="Temperature (Celsius)")  # ADD xlim=(-310, 10), ylim=(-50, 100) if need limit
     cel_ax.set_title("Temperature Data in Celsius")
@@ -38,13 +40,12 @@ def plot_data():
     for time, temp, time_label, temp_label in zip(time_points, temp_points, time_points, temp_points):
         temp_fahr_points = temp * 9 / 5 + 32
         # plot data
-        cel_ax.plot(time, temp, color='red', linewidth=2, marker='.')
+        cel_ax.plot(time, temp, color='blue', linewidth=2, marker='.')
         fah_ax.plot(time, temp_fahr_points, color='blue', linewidth=2, marker='.')
         # add label
         cel_ax.annotate(str(temp_label), xy=(time_label, temp_label))
         fah_ax.annotate(str(temp_fahr_points), xy=(time_label, temp_fahr_points))
         plt.pause(0.01)
-
 
     # Fahrenheit figure
     '''
@@ -60,16 +61,18 @@ def plot_data():
         fah_ax.annotate(str(j), xy=(i, j))
     '''
 
-def add_points():
+
+def add_points(time, temp):
     plt.pause(0.01)
-    cel_ax.plot([20, 50, 100], [24, 25, 21], linewidth=2, marker='.')
-    fah_ax.plot([20, 50, 100], [77, 88, 99], linewidth=2, marker='.')
+    cel_ax.plot(time, temp, color='blue', linewidth=2, marker='.')
+    fah_ax.plot(time, temp * 9 / 5 + 32, color='blue', linewidth=2, marker='.')
+    plt.pause(0.001)
 
 
 def check_switch():
     # Display "No Data Available" if the switch is off
     if not switch_status:
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        props = dict(boxstyle='round', facecolor='red', alpha=0.5)
         cel_ax.text(0.05, 0.87, "No Data Available", transform=cel_ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props)
         fah_ax.text(0.05, 0.87, "No Data Available", transform=fah_ax.transAxes, fontsize=10,
@@ -79,15 +82,11 @@ def check_switch():
 def check_sensor():
     # Display "Unplugged Sensor" if the sensor is not connected
     if not sensor_status:
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        props = dict(boxstyle='round', facecolor='red', alpha=0.5)
         cel_ax.text(0.05, 0.95, "Unplugged Sensor", transform=cel_ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props)
         fah_ax.text(0.05, 0.95, "Unplugged Sensor", transform=fah_ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props)
-
-
-def show():
-    plt.show()
 
 
 # Send text message to a phone number
@@ -116,6 +115,43 @@ def send_sms(msg):
         print(f"Message failed with error: {response_data['messages'][0]['error-text']}")
 
 
+def server_program():
+    #data_array = [0, 0]
+    read_file()
+    plot_data()
+    # get the hostname
+    host = socket.gethostname()
+    port = 5000  # initiate port no above 1024
+
+    server_socket = socket.socket()  # get instance
+    # look closely. The bind() function takes tuple as argument
+    server_socket.bind((host, port))  # bind host address and port together
+
+    # configure how many client the server can listen simultaneously
+    server_socket.listen(2)
+    conn, address = server_socket.accept()  # accept new connection
+    print("Connection from: " + str(address))
+    while True:
+        check_switch()
+        plt.pause(0.001)
+        check_sensor()
+        plt.pause(0.001)
+        # receive data stream. it won't accept data packet greater than 1024 bytes
+        data = conn.recv(1024).decode()
+        if not data:
+            # if data is not received break
+            break
+        print("from connected user: " + str(data))
+        data_array = data.split(',')
+        add_points(float(data_array[0]), float(data_array[1]))
+
+        #show()
+        #data = input(' -> ')
+        #conn.send(data.encode())  # send data to the client
+    plt.show()
+    conn.close()  # close the connection
+
+
 def main():
     global sensor_status
     global switch_status
@@ -123,9 +159,9 @@ def main():
     plot_data()
     check_switch()
     check_sensor()
-    add_points()
-    show()
+    add_points(25, 30)
+    plt.show()
 
 
 if __name__ == "__main__":
-    main()
+    server_program()
