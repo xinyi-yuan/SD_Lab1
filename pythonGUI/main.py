@@ -11,6 +11,15 @@ time_points = list()  # stores time data
 temp_points = list()  # stores temperature data
 sensor_status = False  # flag for sensor status, false if not connected
 switch_status = False  # flag for switch status, false if the switch off
+props = dict(boxstyle='round', facecolor='red', alpha=0.5)
+switch_text_cel = cel_ax.text(0.05, 0.87, "No Data Available", transform=cel_ax.transAxes, fontsize=10,
+                              verticalalignment='top', bbox=props, visible=True)
+switch_text_fah = fah_ax.text(0.05, 0.87, "No Data Available", transform=fah_ax.transAxes, fontsize=10,
+                              verticalalignment='top', bbox=props, visible=True)
+sensor_text_cel = cel_ax.text(0.05, 0.95, "Unplugged Sensor", transform=cel_ax.transAxes, fontsize=10,
+                              verticalalignment='top', bbox=props, visible=True)
+sensor_text_fah = fah_ax.text(0.05, 0.95, "Unplugged Sensor", transform=fah_ax.transAxes, fontsize=10,
+                              verticalalignment='top', bbox=props, visible=True)
 
 
 # read file
@@ -22,7 +31,7 @@ def read_file():
             temp_points.append(float(row[1]))
 
 
-# This function draw the graph
+# This function draw the graph initially
 def plot_data():
     # Celsius figure
     # cel_ax.plot(time_points, temp_points, linewidth=2, marker='.')
@@ -37,56 +46,34 @@ def plot_data():
     fah_ax.set_title("Temperature Data in Fahrenheit")
     fah_ax.yaxis.tick_right()
 
-    for time, temp, time_label, temp_label in zip(time_points, temp_points, time_points, temp_points):
-        temp_fahr_points = temp * 9 / 5 + 32
-        # plot data
-        cel_ax.plot(time, temp, color='blue', linewidth=2, marker='.')
-        fah_ax.plot(time, temp_fahr_points, color='blue', linewidth=2, marker='.')
-        # add label
-        cel_ax.annotate(str(temp_label), xy=(time_label, temp_label))
-        fah_ax.annotate(str(temp_fahr_points), xy=(time_label, temp_fahr_points))
-        plt.pause(0.01)
 
-    # Fahrenheit figure
-    '''
-    temp_fahr_points = [(i * 9 / 5 + 32) for i in temp_points]
-    fah_ax.plot(time_points, temp_fahr_points, linewidth=2, marker='.')
-    plt.pause(0.01)
-    fah_ax.set(xlabel="Time (seconds ago)",
-               ylabel="Temperature (Fahrenheit)")  # ADD xlim=(-310, 10), ylim=(-100, 200) if need limit
-    fah_ax.set_title("Temperature Data in Fahrenheit")
-    fah_ax.yaxis.tick_right()
-    # Add the label for temperature data
-    for i, j in zip(time_points, temp_fahr_points):
-        fah_ax.annotate(str(j), xy=(i, j))
-    '''
-
-
+# Take in two parameters time and temp, then add them onto graph
 def add_points(time, temp):
-    plt.pause(0.01)
     cel_ax.plot(time, temp, color='blue', linewidth=2, marker='.')
     fah_ax.plot(time, temp * 9 / 5 + 32, color='blue', linewidth=2, marker='.')
-    plt.pause(0.001)
+    # add label
+    cel_ax.annotate(str(temp), xy=(time, temp))
+    fah_ax.annotate(str(temp * 9 / 5 + 32), xy=(time, temp * 9 / 5 + 32))
 
 
 def check_switch():
     # Display "No Data Available" if the switch is off
     if not switch_status:
-        props = dict(boxstyle='round', facecolor='red', alpha=0.5)
-        cel_ax.text(0.05, 0.87, "No Data Available", transform=cel_ax.transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
-        fah_ax.text(0.05, 0.87, "No Data Available", transform=fah_ax.transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
+        plt.setp(switch_text_cel, visible=True)
+        plt.setp(switch_text_fah, visible=True)
+    else:   # set the text invisible when the switch is on
+        plt.setp(switch_text_cel, visible=False)
+        plt.setp(switch_text_fah, visible=False)
 
 
 def check_sensor():
     # Display "Unplugged Sensor" if the sensor is not connected
     if not sensor_status:
-        props = dict(boxstyle='round', facecolor='red', alpha=0.5)
-        cel_ax.text(0.05, 0.95, "Unplugged Sensor", transform=cel_ax.transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
-        fah_ax.text(0.05, 0.95, "Unplugged Sensor", transform=fah_ax.transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
+        plt.setp(sensor_text_cel, visible=True)
+        plt.setp(sensor_text_fah, visible=True)
+    else:   # set the text invisible when the sensor is connected
+        plt.setp(sensor_text_cel, visible=False)
+        plt.setp(sensor_text_fah, visible=False)
 
 
 # Send text message to a phone number
@@ -115,10 +102,15 @@ def send_sms(msg):
         print(f"Message failed with error: {response_data['messages'][0]['error-text']}")
 
 
+# Act as server, show interactive graph
 def server_program():
-    #data_array = [0, 0]
-    read_file()
+    global sensor_status
+    global switch_status
     plot_data()
+    check_switch()
+    check_sensor()
+    plt.pause(0.001)
+
     # get the hostname
     host = socket.gethostname()
     port = 5000  # initiate port no above 1024
@@ -132,10 +124,6 @@ def server_program():
     conn, address = server_socket.accept()  # accept new connection
     print("Connection from: " + str(address))
     while True:
-        check_switch()
-        plt.pause(0.001)
-        check_sensor()
-        plt.pause(0.001)
         # receive data stream. it won't accept data packet greater than 1024 bytes
         data = conn.recv(1024).decode()
         if not data:
@@ -143,11 +131,33 @@ def server_program():
             break
         print("from connected user: " + str(data))
         data_array = data.split(',')
-        add_points(float(data_array[0]), float(data_array[1]))
 
-        #show()
-        #data = input(' -> ')
-        #conn.send(data.encode())  # send data to the client
+        # Send sms if the temperature is too low or too high
+        if int(data_array[1]) < 0:
+            send_sms(0)
+        elif float(data_array[1]) > 50:
+            send_sms(1)
+
+        # Set the sensor and switch status
+        if int(data_array[2]) == 0:
+            sensor_status = False
+        else:
+            sensor_status = True
+        if int(data_array[3]) == 0:
+            switch_status = False
+        else:
+            switch_status = True
+
+        # Add points to the graph
+        add_points(float(data_array[0]), float(data_array[1]))
+        plt.pause(0.01)
+        # check switch and sensor status, and then display text on graph
+        check_switch()
+        check_sensor()
+        plt.pause(0.01)
+        plt.pause(0.01) # make sure it doesn't delay
+        # conn.send(data.encode())  # send data to the client
+
     plt.show()
     conn.close()  # close the connection
 
