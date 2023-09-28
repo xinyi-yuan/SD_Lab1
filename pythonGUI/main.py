@@ -133,29 +133,32 @@ def server_program():
         data_array = data.split(',')
 
         # Send sms if the temperature is too low or too high
-        if int(data_array[1]) < 0:
-            send_sms(0)
-        elif float(data_array[1]) > 50:
-            send_sms(1)
+        if "null" not in data_array[1]:
+            if float(data_array[1]) < 0:
+                send_sms(0)
+        elif "null" not in data_array[1]:
+            if float(data_array[1]) > 50:
+                send_sms(1)
 
         # Set the sensor and switch status
         if int(data_array[2]) == 0:
             sensor_status = False
         else:
             sensor_status = True
-        if int(data_array[3]) == 0:
+        if float(data_array[3]) == 0:
             switch_status = False
         else:
             switch_status = True
 
         # Add points to the graph
-        add_points(float(data_array[0]), float(data_array[1]))
-        plt.pause(0.01)
+        if "null" not in data_array[0] and "null" not in data_array[1]:
+            add_points(float(data_array[0]), float(data_array[1]))
+            plt.pause(0.01)
         # check switch and sensor status, and then display text on graph
         check_switch()
         check_sensor()
         plt.pause(0.01)
-        plt.pause(0.01) # make sure it doesn't delay
+        plt.pause(0.01)  # make sure it doesn't delay
         # conn.send(data.encode())  # send data to the client
 
     plt.show()
