@@ -78,7 +78,7 @@ def check_sensor():
 
 # Send text message to a phone number
 def send_sms(msg):
-    client = vonage.Client(key="b97abc26", secret="ognhX5rUby9tMLxy")
+    client = vonage.Client()
     sms = vonage.Sms(client)
     if msg == 0:
         response_data = sms.send_message(
